@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>JS PROJECT</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            *{
+                box-sizing: border-box;
+            }
+            .container{
+                width: 100%;
+                margin: 0 auto;
+            }
+            .roud{
+                height: 200px;
+
+                position: relative;
+                background: #222 url('img/line.png') repeat-x center
+            }
+
+            select.error{
+                border:1px solid red;
+            }
+
+            p.error{
+                color: red;
+            }
+
+            #car{
+                width: 5%;
+                height: 45px;
+                position: absolute;
+                bottom: 20px;
+                left: 0%;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+                transition: 0.5s linear;
+            }
+
+            .light{
+                width: 6px;
+                height: 6px;
+                position: absolute;
+                right: 7px;
+                margin-top:-3px;
+                border-radius: 50%;
+            }
+
+            .yellow{
+                background: yellow;
+            }
+
+            #light1{
+                top:11px;
+            }
+
+            #light2{
+                bottom: 7px;
+            }
+
+            #fuelBar{
+                position: absolute;
+                top:0;
+                left: 0;
+                width: 100%;
+                height: 3px;
+                background: #fff;
+                display: none;
+            }
+
+            #currenFuelState{
+                width: 100%;
+                height: 100%;
+                background: red;
+            }
+            p.error{
+                color:red;
+            }
+            .form-group{
+                display: inline-block;
+                vertical-align: top;
+            }
+            button{
+                border:1px solid #000;
+                border-radius:3px;
+                padding: 5px 10px;
+                font-size: 16px;
+                background: #eee;
+            }
+            .form-control{
+                width: 250px;
+                height: 30px;
+                border:1px solid #000;
+                margin-bottom: 10px;
+                margin-top: 0px;
+                font-size: 15px;
+            }
+
+            .car-store{
+                margin-bottom: 100px;
+            }
+            #barrier{
+                width: 50px;
+                height: 50px;
+                position: absolute;
+                bottom: 5px;
+                left: 50%;
+                background: #fff;
+            }
+
+            @keyframes signal {
+                50% {background-color: transparent;}
+                100% {background-color: 'yellow';}
+            }
+
+            .signal{
+                animation: signal 5 0.3s linear;
+            }
+
+            .controls button{
+                display: none;
+            }
+
+            .controls .active{
+                display: inline-block;
+            }
+
+            .controls .purchase{
+                display: none;
+            }
+            .controls .purchase ~ button{
+                display: inline-block;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="container">
+
+            <div class="car-store">
+
+                <h1>CAR STORE</h1>
+                <div class="form-group">
+                    <select id="car-brand" class="form-control" name="car-brand">
+                        <option value="">Car brand</option>
+                        <option value="bmw">BMW</option>
+                        <option value="fiat">Fiat</option>
+                        <option value="ford">Ford</option>
+                        <option value="chevrolet">Chevrolet</option>
+                    </select>
+                    <p class="error" id="car-brand-error"></p>
+                </div>
+
+                <div  class="form-group">
+                    <select id="car-consumption" class="form-control" name="car-consumption">
+                        <option value="">Car consumption</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="10">10</option>
+                    </select>
+                    <p class="error" id="car-consumption-error"></p>
+                </div>
+                <div  class="form-group">
+                    <select id="car-color" class="form-control" name="car-color">
+                        <option value="">Car color</option>
+                        <option value="white">White</option>
+                        <option value="red">Red</option>
+                        <option value="gray">Gray</option>
+                        <option value="blue">Blue</option>
+                    </select>
+                    <p class="error" id="car-color-error"></p>
+                </div>
+                <button onclick="buyer.pickCar();">Pick the car</button>
+
+
+            </div>
+
+            <div class="roud">
+                <div id="barrier">
+
+                </div>
+                <div id="car">
+                    <div class="light" id="light1"></div>
+                    <div class="light" id="light2"></div>
+                    <div id="fuelBar">
+                        <div id="currenFuelState"></div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <div class="controls">
+                <button id="buy-car" onclick="buyer.buyCar();">Buy a car</button>
+                <button onclick="personCar.turnOn();">Start</button>
+                <button onclick="personCar.go();">Go!</button>
+                <button onclick="personCar.stopCar();">Stop!</button>
+                <button onclick="personCar.changeTrace();">Change trace</button>
+                <button onclick="personCar.backTrace();">Back to trace</button>
+                <button onclick="personCar.speadUp();">Speed Up</button>
+                <button onclick="personCar.speadDown();">Speed down</button>
+                <button onclick="personCar.reverse();">Reverse gear</button>
+                <button onclick="personCar.turnOff();">Turn off!</button>
+                <button>Tank fuel!</button>
+            </div>
+        </div>
+
+
+
+        <script>
+            let errors = {};
+
+            let buyer = {
+                name: 'Vladan',
+                lastname: 'Dzulovic',
+                drivingLicence: true,
+                wallet: 30000, // E
+                pickCar: function () {
+
+                    //  model
+                    // pick value
+
+                    let carBrand = getData('car-brand');
+
+                    // create errors for model
+                    errors.brand = [];
+
+                    // check model
+
+                    // required
+
+//                    if(carBrand.length === 0){
+//                        errors.brand.push('Polje je obavezno');
+//                    }
+
+                    requiredField(carBrand, 'brand', 'Brand ');
+
+                    // check if errors exist
+
+//                    if(errors.brand.length === 0){
+//                        // no errors
+//                        // empty errors
+//                        // remove error class
+//                        document.getElementById('car-brand-error').innerText = '';
+//                        document.getElementById('car-brand').classList.remove('error');
+//                    }else{
+//                        // have errors
+//                        // display errors in p
+//                        // add error class to select field
+//                        document.getElementById('car-brand-error').innerText = errors.brand.join('\n');
+//                        document.getElementById('car-brand').classList.add('error');
+//                    }
+
+                    checkErrors('brand', 'car-brand-error', 'car-brand');
+
+
+
+                    // consumption
+
+                    // get data
+
+                    let carConsumption = getData('car-consumption');
+
+                    // create error 
+
+                    errors.consumption = [];
+
+                    // check consumption data
+
+
+                    // 1. required
+
+
+//                    if(carConsumption.length === 0){
+//                        errors.consumption.push('Polje je obavezno');
+//                    }
+
+                    requiredField(carConsumption, 'consumption', 'Consumption ');
+
+                    // check if errors exist
+
+                    checkErrors('consumption', 'car-consumption-error', 'car-consumption');
+
+
+                    // color
+                    // get value
+                    let carColor = getData('car-color');
+                    // create error placeholder
+                    errors.color = [];
+
+                    // check color 
+                    // 1 required
+
+                    requiredField(carColor, 'color', 'Color ');
+
+
+                    // check if errors exist
+
+                    checkErrors('color', 'car-color-error', 'car-color');
+
+
+
+
+                    if (
+                            errors.brand.length === 0 &&
+                            errors.consumption.length === 0 &&
+                            errors.color.length === 0) {
+
+                        personCar.brand = carBrand;
+                        sessionStorage.setItem('brand', carBrand);
+                        personCar.color = carColor;
+                        sessionStorage.setItem('color', carColor);
+                        personCar.consumption = carConsumption;
+                        sessionStorage.setItem('consumption', carConsumption);
+                        personCar.model = 'img/' + carBrand + '-' + carColor + '.png';
+                        sessionStorage.setItem('model', 'img/' + carBrand + '-' + carColor + '.png');
+                        switch (carBrand) {
+                            case 'fiat':
+                                personCar.price = 20000;
+                                sessionStorage.setItem('price', 20000);
+                                break;
+                            case 'ford':
+                                personCar.price = 25000;
+                                sessionStorage.setItem('price', 25000);
+                                break;
+                            case 'chevrolet':
+                                personCar.price = 30000;
+                                sessionStorage.setItem('price', 30000);
+                                break;
+                            case 'bmw':
+                                personCar.price = 35000;
+                                sessionStorage.setItem('price', 35000);
+                                break;
+                        }
+
+
+                        emptyData('car-brand');
+                        emptyData('car-color');
+                        emptyData('car-consumption');
+                        document.getElementById('buy-car').classList.add('active');
+                        alert('Izabrali ste auto. Idite na kasu');
+
+
+
+
+                    } else {
+                        return;
+                    }
+
+                },
+                buyCar: function () {
+
+                    if (this.wallet >= personCar.price) {
+                        this.wallet -= personCar.price;
+                        document.getElementById('buy-car').classList.add('purchase');
+                        document.getElementById('car').setAttribute('style', 'background-image:url("' + personCar.model + '")');
+                        sessionStorage.setItem('kupljen', true);
+                    } else {
+                        alert('Nemate dovolno novca!!!');
+                    }
+                }
+            };
+
+
+
+
+            let personCar = {
+                brand: sessionStorage.getItem('brand'),
+                consumption: sessionStorage.getItem('consumption'),
+                color: sessionStorage.getItem('color'),
+                model: sessionStorage.getItem('model'),
+                price: sessionStorage.getItem('price'),
+                fuel: 100,
+                position: 0,
+                isStart: false,
+                isMove: false,
+                gear: 1,
+                turnOn: function () {
+
+
+
+
+
+                    if (!this.isStart) {
+                        // turn light on
+                        document.getElementById('light1').classList.add('yellow');
+                        document.getElementById('light2').classList.add('yellow');
+                        // display fuel bar          
+                        document.getElementById('fuelBar').setAttribute('style', 'display:block');
+                        this.gear = 0;
+
+
+
+                        // kreni da trosos gorivo
+
+                        this.isStart = setInterval(function () {
+                            personCar.emptyTank();
+                        }, 1000);
+                    } else {
+                        alert('Auto je vec upaljen');
+                    }
+
+
+                },
+                emptyTank: function () {
+                    if (this.fuel > 0) {
+                        this.fuel -= this.consumption / 30;
+                        document.getElementById('currenFuelState').style.width = this.fuel + '%';
+                    } else {
+                        //ugasis Auto
+
+                        this.turnOff();
+
+                        // pitaj da dopunis rezervoar
+                        
+                        
+                    }
+                },
+
+                turnOff: function () {
+                    if (this.isStart) {
+
+                        //ugasi svetla
+                        document.getElementById('light1').classList.remove('yellow');
+                        document.getElementById('light2').classList.remove('yellow');
+                        // zaustavi auto
+                        
+                        this.stopCar();
+
+
+                        // prekini potrosnju
+                        clearInterval(this.isStart);
+                        this.isStart = false;
+
+                    } else {
+                        alert('Auto je vec ugasen');
+                    }
+                },
+                go: function () {
+                    if (this.isStart) {
+
+
+                        if (!this.isMove) {
+                            if(this.gear === 0){
+                                this.gear = 1;
+                            }
+                            this.isMove = setInterval(function () {
+                                personCar.position += personCar.gear;
+                                document.getElementById('car').style.left = personCar.position + '%';
+                            }, 500);
+                        } else {
+                            alert('Auto se vec krece !!!');
+                        }
+                    } else {
+                        alert('Upalite auto prvo');
+                    }
+
+                },
+
+                stopCar: function () {
+                    if (this.isMove) {
+                        this.gear = 0;
+                        clearInterval(this.isMove);
+                        this.isMove = false;
+                    } else {
+                        alert('Auto vec stoji!!!');
+                    }
+                },
+                changeTrace: function () {
+                    if (this.isMove) {
+                        document.getElementById('light1').classList.add('signal');
+                        document.getElementById('light2').classList.remove('signal');
+                        setTimeout(function () {
+                            document.getElementById('car').style.bottom = '120px';
+                        }, 1000);
+
+                    }
+                },
+                backTrace: function () {
+                    if (this.isMove) {
+                        document.getElementById('light1').classList.remove('signal');
+                        document.getElementById('light2').classList.add('signal');
+                        setTimeout(function () {
+                            document.getElementById('car').style.bottom = '20px';
+                        }, 1000);
+
+                    }
+                },
+                speadUp: function () {
+                    if (this.isMove) {
+                        if (this.gear < 7) {
+                            this.gear += 1;
+                        }
+
+                    }
+                },
+                speadDown: function(){
+                    if(this.isMove){
+                        if(this.gear > 0){
+                            this.gear -= 1;
+                        }
+                    }
+                }, 
+                reverse: function(){
+                    if(this.gear === 0){
+                        this.gear = -1;
+                    }
+                }
+
+
+            };
+
+
+
+            function getData(elementID) {
+                return document.getElementById(elementID).value.trim();
+
+            }
+
+
+            function requiredField(data, errorPlaceholder, errorName) {
+                if (data.length === 0) {
+                    errors[errorPlaceholder].push(errorName + 'Polje je obavezno');
+                }
+            }
+
+
+
+            function checkErrors(errorPlaceholder, errorID, elementID) {
+
+                if (errors[errorPlaceholder].length === 0) {
+                    // no errors
+                    // empty errors
+                    // remove error class
+                    document.getElementById(errorID).innerText = '';
+                    document.getElementById(elementID).classList.remove('error');
+                } else {
+                    // have errors
+                    // display errors in p
+                    // add error class to select field
+                    document.getElementById(errorID).innerText = errors[errorPlaceholder].join('\n');
+                    document.getElementById(elementID).classList.add('error');
+                }
+            }
+
+
+
+            function emptyData(elementID) {
+                document.getElementById(elementID).value = '';
+            }
+            ;
+
+
+            function kupljen() {
+                if (sessionStorage.getItem('kupljen')) {
+                    document.getElementById('buy-car').classList.add('active');
+                }
+            }
+
+            kupljen();
+
+//            let person = {
+//                'name': 'Vladan',
+//                lastname: 'Dzulovic'
+//            };
+//            
+//            let izbor = 'lastname';
+//            
+//            console.log(person[izbor]);
+        </script>
+    </body>
+</html>
